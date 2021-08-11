@@ -36,10 +36,10 @@ void *handleIncomingRequests(void *e) {
 	//variable declartion
 	char   online = 1;
 	int serverSocket, status, addrSize, bytesReceived;
-	unsigned char buffer[9], response[9];
-	int direction;
-	float x, y;
-	//for sign 1 is negative 0 is positive
+	unsigned char buffer[11], response[11];
+	int direction, speed;
+	float x, y, weight_change;
+    //for sign 1 is negative 0 is positive
 	char sign, lowerBytes,upperBytes, getRandomSign, convertToNeg;
 
 	lowerBytes = 31; //used to conver the x and y values to higher bytes
@@ -96,12 +96,19 @@ void *handleIncomingRequests(void *e) {
 					//generate an x, y, and direction value endlesslys
 					while(TRUE){
 			            float w = ((float) rand()/(float) (RAND_MAX))*1.0;
-                        int weight = ROBOT_RADIUS * (1 + w);
+                        int weight = ROBOT_RADIUS * (0.5 + w);
 						//generate the random values
 						x = (rand() % (ENV_SIZE - weight + 1)) + weight;
 						y = (rand() % (ENV_SIZE - weight + 1)) + weight;
 						sign = 	(rand() % getRandomSign);
-						direction = (rand() %  MAX_DIRECTION);	
+						direction = (rand() %  MAX_DIRECTION);
+                        weight_change = (weight - ROBOT_RADIUS)/(float)ROBOT_RADIUS;
+                        if(weight_change < 0){
+                          weight_change *= -1;
+                          response[10] = 1;
+                        }else{
+ 						  response[10] = 0;
+                        }
 						//populate the char array to send to the client
 						response[0] = OK; 
 						response[1] = environment.numRobots;
@@ -113,6 +120,8 @@ void *handleIncomingRequests(void *e) {
 						response[5] = ((int)y) >> upperBytes;
 						response[6] = sign;
 						response[7] = direction;
+                        response[8] = (int)(weight_change*100);
+					  	
                         environment.robots[environment.numRobots].weight = weight;
 						//store the x and y  values of that robot
 						//in the environment
@@ -133,7 +142,7 @@ void *handleIncomingRequests(void *e) {
 					//know the robot has been registered (SEND OK)
 					//and the robots values
 					environment.numRobots++;
-					sendto(serverSocket, response, 9, 0, 
+					sendto(serverSocket, response, 11, 0, 
 					(struct sockaddr *) &clientAddr, addrSize);
 				}else{
 				//max number of robots have been added, send not ok

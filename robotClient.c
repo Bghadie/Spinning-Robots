@@ -24,11 +24,11 @@ int main() {
 	//declare all variables
 	int clientSocket, addrSize, bytesReceived;
 	struct sockaddr_in serverAddr;
-	unsigned char buffer[9], response[9];
+	unsigned char buffer[11], response[11];
 	//for sign, 1 is negative 0 is positive
 	//for turn, 1 is CWW and 0 is CW
 	int direction, ID, negativeConverter, turn, shouldTurn, maxDegrees = 180, minDegrees = -180;
-	float x, y;
+	float x, y, speed;
 	char upperBytes, lowerBytes, sign, online, getRandomSign = 2;
     struct tm * timeinfo;
     time_t rawtime;
@@ -68,14 +68,18 @@ int main() {
 		x = (buffer[2] |(buffer[3] << upperBytes));
 		y = (buffer[4] |(buffer[5] << upperBytes));
 		sign = buffer[6];
-
+        float change_speed = buffer[8]/(float)100.0;
+        if(!buffer[10]){
+          speed = ROBOT_SPEED - (ROBOT_SPEED *  change_speed); 
+        }else{
+          speed = (ROBOT_SPEED * (1 + change_speed));
+		}
 		if(sign){
 			direction = buffer[7]*negativeConverter;
 			
 		}else{
 			direction = buffer[7];
 		}
-
 		online = TRUE;
 		
 	}else{
@@ -111,8 +115,8 @@ int main() {
             time(&rawtime);
             timeinfo = localtime (&rawtime);
 			second = 2 + timeinfo->tm_sec + (timeinfo->tm_min*60) + (timeinfo->tm_hour*3600);
-			x = x + (ROBOT_SPEED * (cos((direction*PI)/180)));
-			y = y + (ROBOT_SPEED * (sin((direction*PI)/180)));
+			x = x + (speed * (cos((direction*PI)/180)));
+			y = y + (speed * (sin((direction*PI)/180)));
 		}
 		//if there is a colision with a boundary/robot
 		if(buffer[0] == NOT_OK_BOUNDARY || buffer[0] == NOT_OK_COLLIDE){
