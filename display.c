@@ -61,7 +61,7 @@ void *redraw(void *environment) {
     
     for (int i=0; i<env->numRobots; i++) {
       XSetForeground(display, gc, 0x000000); // black
-      int weight =  env->robotWeights[i];
+      int weight =  env->robots[i].weight;
       XFillArc(display, win, gc,
 	       env->robots[i].x-weight, ENV_SIZE-env->robots[i].y-weight,
 	       2*weight, 2*weight, 0,
