@@ -28,6 +28,7 @@
 typedef struct {
   float    x;
   float    y;
+  float    speed;
   int      direction;
   int      weight;
 } Robot;
