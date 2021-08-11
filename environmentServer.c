@@ -113,8 +113,7 @@ void *handleIncomingRequests(void *e) {
 						response[5] = ((int)y) >> upperBytes;
 						response[6] = sign;
 						response[7] = direction;
-                        printf("Weight: %d\n", weight);
-                        environment.robotWeights[environment.numRobots] = weight;
+                        environment.robots[environment.numRobots].weight = weight;
 						//store the x and y  values of that robot
 						//in the environment
 						environment.robots[environment.numRobots].x = x;
@@ -211,8 +210,6 @@ void *handleIncomingRequests(void *e) {
 int main() {
 	// So far, the environment is NOT shut down
 	environment.shutDown = FALSE;
-	for(int i = 0; i < 32; ++i)
-      printf("The hash is: %d\n", (hashCode(i)%32));
 
     //initialize mutex    
     if(pthread_mutex_init(&lock, NULL) != 0){
@@ -242,7 +239,7 @@ char checkCollide(char currRobtID){
 	//declare all variables
 	float x1, y1, x2, y2, distance;
 	int direction, weight;
-    weight = environment.robotWeights[currRobtID];
+    weight = environment.robots[currRobtID].weight;
 	//get the current robot's x, y, and direction
 	x1 = environment.robots[currRobtID].x;
 	y1 = environment.robots[currRobtID].y;
@@ -266,7 +263,7 @@ char checkCollide(char currRobtID){
             pthread_mutex_lock(&lock);
 			x2 = environment.robots[i].x;
 			y2 = environment.robots[i].y;
-            int weight2 = environment.robotWeights[i];
+            int weight2 = environment.robots[i].weight;
 			distance = sqrt(pow((x1 - x2),2) + pow((y1 - y2),2));
 			unsigned char  check;
             check  = (distance <= (weight + weight2));

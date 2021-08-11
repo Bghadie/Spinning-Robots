@@ -29,11 +29,11 @@ typedef struct {
   float    x;
   float    y;
   int      direction;
+  int      weight;
 } Robot;
 
 typedef struct {
   Robot robots[MAX_ROBOTS];
-  int robotWeights[MAX_ROBOTS];
   int   numRobots;
   char  shutDown; // 1 if environment has been shut down, 0 otherwise
 } Environment;
